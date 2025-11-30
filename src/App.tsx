@@ -1,25 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+
+import Pages from "./data/Pages";
+
+import { useState, useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 function App() {
+  const location = useLocation();
+  const [currentPath, setCurrentPath] = useState<string>(location.pathname);
+  useEffect(() => {
+    const currentPage = Pages.find((page) => page.path === currentPath);
+    document.title = `Todolist Pro | ${
+      currentPage?.found ? currentPage?.title : "Page Not Found"
+    }`;
+  }, [currentPath]);
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location.pathname]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Routes location={location} key={location.pathname}>
+        {Pages.map((page, index) => (
+          <Route key={index} path={page.path} element={page.component} />
+        ))}
+      </Routes>
+    </>
   );
 }
 
