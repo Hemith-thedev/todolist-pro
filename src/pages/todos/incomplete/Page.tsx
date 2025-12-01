@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-const IncompletedTodos = () => {
+const IncompleteTodos = () => {
   return (
     <main className="landing-page">
-      <h1>IncompletedTodos</h1>
+      <h1>IncompleteTodos</h1>
     </main>
   );
 };
 
-export default IncompletedTodos;
+export default IncompleteTodos;

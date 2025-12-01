@@ -1,45 +1,26 @@
-import Home from "../pages/home/Page";
+import { RouteConfig } from "./Types";
+
 import PageNotFound from "../pages/PageNotFound/Page";
 import Todos from "../pages/todos/Page";
 import CompletedTodos from "../pages/todos/completed/Page";
-import IncompletedTodos from "../pages/todos/incomplete/Page";
+import IncompleteTodos from "../pages/todos/incomplete/Page";
 
-const Pages = [
+export const Pages: RouteConfig[] = [
   {
     path: "/",
-    label: "Home",
-    component: Home(),
     title: "Home",
-    found: true,
+    component: Todos
   },
   {
-    path: "*",
-    label: "PageNotFound",
-    component: PageNotFound(),
-    title: "PageNotFound",
-    found: false,
-  },
-  {
-    path: "/todos",
-    label: "Todos",
-    component: Todos(),
-    title: "Todos",
-    found: true,
-  },
-  {
-    path: "/todos/completed",
-    label: "Completed",
-    component: CompletedTodos(),
+    path: "/completed",
     title: "Completed",
-    found: true,
+    component: CompletedTodos
   },
   {
-    path: "/todos/incomplete",
-    label: "Incompleted",
-    component: IncompletedTodos(),
-    title: "Incompleted",
-    found: true,
-  },
+    path: "/incomplete",
+    title: "Incomplete",
+    component: IncompleteTodos
+  }
 ];
 
-export default Pages;
+export const PageNotFoundRoute: RouteConfig = { path: "*", title: "Page Not Found", component: PageNotFound };
