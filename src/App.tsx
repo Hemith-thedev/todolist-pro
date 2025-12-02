@@ -14,7 +14,7 @@ function App() {
     } else {
       document.title = "Todolist PRO | 404";
     }
-  },[location.pathname]);
+  }, [location.pathname]);
   return (
     <>
       <Routes location={location} key={location.pathname}>
