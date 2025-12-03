@@ -17,6 +17,7 @@ const Dropdown = ({ placeholder, options, onSelect }: DropdownOptions) => {
   return (
     <div className="dropdown relative flex flex-col justify-start items-center h-fit w-fit">
       <button
+        type="button"
         className={`dropdown-button button flex justify-center items-center gap-3 p-6 rounded-2xl text-nowrap cursor-pointer hover:bg-gray-900 hover:text-white ${(isOpen) ? "shadow-2xl shadow-amber-600/100 bg-gray-900 text-white" : "shadow-xl shadow-amber-600/10 bg-gray-100 text-gray-900"}`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
@@ -31,7 +32,8 @@ const Dropdown = ({ placeholder, options, onSelect }: DropdownOptions) => {
         </div>
       </button>
       {isOpen && (
-        <motion.ul className="dropdown-menu absolute top-20 flex flex-col justify-center items-center h-fit w-fit rounded-2xl p-6 bg-gray-100 shadow-2xl shadow-gray-300 z-2">
+        <ul
+          className={`dropdown-menu absolute ${(isOpen) ? "top-20" : "top-16"} flex flex-col justify-start items-center max-h-48 h-fit w-fit rounded-2xl p-6 bg-gray-100 shadow-2xl shadow-gray-300 overflow-auto z-2`}>
           <li
             onClick={() => handleSelect({ id: 0, label: "", color: "" })}
             className={`flex justify-center items-center h-fit w-full rounded-md px-5 py-2 ${(selected.id === 0) ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} cursor-pointer`}
@@ -40,14 +42,14 @@ const Dropdown = ({ placeholder, options, onSelect }: DropdownOptions) => {
           </li>
           {options.map((option, index) => (
             <li
-              key={index} 
+              key={index}
               className={`flex justify-center items-center h-fit w-full rounded-md px-5 py-2 ${(selected.id === option.id) ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} cursor-pointer`}
               onClick={() => handleSelect(option)}
             >
               <p>{option.label}</p>
             </li>
           ))}
-        </motion.ul>
+        </ul>
       )}
     </div>
   );

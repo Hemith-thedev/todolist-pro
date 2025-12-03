@@ -79,6 +79,12 @@ const Todos = () => {
     });
     setTodos(UpdatedTodos);
     setEditingIndex(null);
+    setEditingTodoLabel("");
+    setEditingTodoCategory({
+      id: GenerateUniqueId(categories),
+      label: "",
+      color: "",
+    });
   };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -104,6 +110,9 @@ const Todos = () => {
       });
     } else {
       setError("Please enter a todo");
+      setTimeout(() => {
+        setError("");
+      }, 3000);
     }
   };
   return (
@@ -112,10 +121,10 @@ const Todos = () => {
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${(todos.length > 0) ? "items-start" : "items-center"} h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${(todos.length > 0) ? "items-start" : "items-center"} gap-4 h-fit w-full p-10`}
         >
-          <div className="logo">
-            <p className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">TodoList PRO</p>
+          <div className="logo flex justify-center items-center h-fit w-full">
+            <p className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${(todos.length > 0) ? "justify-between" : "justify-center"}`}>Todolist <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">PRO</span></p>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             <div className="flex justify-between items-center gap-7 w-full">
@@ -157,6 +166,7 @@ const Todos = () => {
         <Wrapper>
           {categories.map((category) => (
             <div className="category" key={category.id}>
+              <h2 className="category-label">{category.label}</h2>
               {todos
                 .filter((todo) => todo.category === category)
                 .map((todo) => (

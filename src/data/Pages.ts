@@ -4,6 +4,7 @@ import PageNotFound from "../pages/PageNotFound/Page";
 import Todos from "../pages/todos/Page";
 import CompletedTodos from "../pages/todos/completed/Page";
 import IncompleteTodos from "../pages/todos/incomplete/Page";
+import Categories from "../pages/categories/Page";
 
 export const Pages: RouteConfig[] = [
   {
@@ -20,6 +21,11 @@ export const Pages: RouteConfig[] = [
     path: "/incomplete",
     title: "Incomplete",
     component: IncompleteTodos
+  },
+  {
+    path: "/categories",
+    title: "Categories",
+    component: Categories
   }
 ];
 
