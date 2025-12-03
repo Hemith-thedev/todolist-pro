@@ -7,13 +7,13 @@ export interface RouteConfig {
 }
 
 export interface Category {
-  id: string;
+  id: number;
   label: string;
   color: string;
 }
 
 export interface Todo {
-  id: string;
+  id: number;
   label: string;
   category: Category;
   completed: boolean;
@@ -22,7 +22,7 @@ export interface Todo {
 }
 
 export interface DropdownOptionOptions {
-  id: string,
+  id: number,
   label: string;
   color: string;
 }
