@@ -5,7 +5,11 @@ import Dropdown from "./Dropdown";
 
 interface TodoCardProps extends Todo {
   categories: Category[];
-  onUpdate: (id: number, updatedLabel: string, updatedCategory: Category) => void;
+  onUpdate: (
+    id: number,
+    updatedLabel: string,
+    updatedCategory: Category
+  ) => void;
   onToggleComplete: (id: number) => void;
   // NEW PROPS for confirmation flow
   onDeleteClick: (id: number) => void;
@@ -27,7 +31,6 @@ const TodoCard = ({
   onDeleteConfirm,
   onDeleteCancel,
 }: TodoCardProps) => {
-
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editingTodoLabel, setEditingTodoLabel] = useState<string>(label);
   const [editingTodoCategory, setEditingTodoCategory] =
@@ -46,12 +49,12 @@ const TodoCard = ({
 
   const handleToggleComplete = () => {
     onToggleComplete(id);
-  }
+  };
 
   // UPDATED RENDER LOGIC
   return (
-    <div className="todo flex justify-between items-center p-4 shadow-md rounded-xl bg-gray-100">
-      <div className="checkbox-label flex items-center gap-3">
+    <div className="todo flex justify-between items-center gap-2 p-4 shadow-md rounded-xl bg-gray-100">
+      <div className="checkbox-label flex items-center gap-3 w-full">
         <div
           className="checkbox flex justify-center items-center h-5 w-5 cursor-pointer rounded-full transition duration-150"
           style={{
@@ -62,14 +65,14 @@ const TodoCard = ({
         >
           {completed ? <Check className="h-4 w-4 text-white" /> : null}
         </div>
-        <div className="label">
+        <div className="label w-full">
           {isEditing ? (
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center w-full">
               <input
                 type="text"
                 value={editingTodoLabel}
                 onChange={(e) => setEditingTodoLabel(e.target.value)}
-                className="bg-transparent w-full p-6 border-none outline-none rounded-md shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out"
+                className="bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out"
               />
               <Dropdown
                 placeholder="Select Category"
@@ -82,26 +85,27 @@ const TodoCard = ({
               />
             </div>
           ) : (
-            <p className={completed ? "line-through text-gray-500" : ""}>{label}</p>
+            <p style={{ '--color': category.color } as React.CSSProperties} className={`${completed ? "line-through text-gray-500" : ""} selection:bg-[var(--color)] selection:text-gray-900`}>
+              {label}
+            </p>
           )}
         </div>
       </div>
       <div className="options flex gap-3 items-center">
-
         {isConfirming ? (
           // CONFIRMATION UI (No change needed here)
           <>
-            <p className="text-red-500 text-sm">Delete?</p>
+            <p className="text-amber-600 text-nowrap">Are you sure?</p>
             <button
               type="button"
-              className="text-white bg-red-600 px-3 py-1 rounded text-sm hover:bg-red-700"
+              className="text-nowrap text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
               onClick={() => onDeleteConfirm(id)}
             >
-              Yes
+              Yes, Delete
             </button>
             <button
               type="button"
-              className="text-gray-900 bg-gray-300 px-3 py-1 rounded text-sm hover:bg-gray-400"
+              className="text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
               onClick={onDeleteCancel}
             >
               Cancel
@@ -110,10 +114,18 @@ const TodoCard = ({
         ) : isEditing ? (
           // EDITING UI (No change needed here)
           <>
-            <button type="button" className="save text-blue-600 hover:text-blue-800" onClick={handleSaveEdit}>
+            <button
+              type="button"
+              className="save text-blue-600 p-2 rounded-md hover:text-blue-800 hover:bg-blue-200 hover:shadow-xl hover:shadow-blue-600/50"
+              onClick={handleSaveEdit}
+            >
               Save
             </button>
-            <button type="button" className="cancel text-gray-600 hover:text-gray-800" onClick={() => setIsEditing(false)}>
+            <button
+              type="button"
+              className="cancel text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
+              onClick={() => setIsEditing(false)}
+            >
               Cancel
             </button>
           </>
@@ -122,14 +134,14 @@ const TodoCard = ({
           <>
             <button
               type="button"
-              className="edit text-gray-600 hover:text-gray-800"
+              className="edit text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
               onClick={handleStartEdit}
             >
               Edit
             </button>
             <button
               type="button"
-              className="delete text-red-600 hover:text-red-800"
+              className="delete text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
               onClick={() => onDeleteClick(id)}
               disabled={isEditing}
             >

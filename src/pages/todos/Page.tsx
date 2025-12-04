@@ -19,7 +19,9 @@ const Todos = () => {
   });
 
   // NEW STATE for confirmation
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     localStorage.setItem(LOCALSTORAGE_TODOS_KEY, JSON.stringify(todos));
@@ -64,18 +66,35 @@ const Todos = () => {
 
   // Handlers for the TodoCard
 
-  const handleUpdate = (id: number, updatedLabel: string, updatedCategory: Category) => {
-    setTodos(prevTodos =>
-      prevTodos.map(t =>
-        t.id === id ? { ...t, label: updatedLabel, category: updatedCategory, updatedAt: new Date().toISOString() } : t
+  const handleUpdate = (
+    id: number,
+    updatedLabel: string,
+    updatedCategory: Category
+  ) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              label: updatedLabel,
+              category: updatedCategory,
+              updatedAt: new Date().toISOString(),
+            }
+          : t
       )
     );
   };
 
   const handleToggleComplete = (id: number) => {
-    setTodos(prevTodos =>
-      prevTodos.map(t =>
-        t.id === id ? { ...t, completed: !t.completed, updatedAt: new Date().toISOString() } : t
+    setTodos((prevTodos) =>
+      prevTodos.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              completed: !t.completed,
+              updatedAt: new Date().toISOString(),
+            }
+          : t
       )
     );
   };
@@ -87,7 +106,7 @@ const Todos = () => {
 
   // NEW HANDLER: Executes deletion if confirmed (passed to TodoCard's confirmation button)
   const handleDeleteConfirm = (id: number) => {
-    setTodos(prevTodos => prevTodos.filter(t => t.id !== id));
+    setTodos((prevTodos) => prevTodos.filter((t) => t.id !== id));
     setConfirmingDeleteId(null);
   };
 
@@ -95,7 +114,6 @@ const Todos = () => {
   const handleDeleteCancel = () => {
     setConfirmingDeleteId(null);
   };
-
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -145,26 +163,40 @@ const Todos = () => {
 
   return (
     <main
-      className={`landing-page relative flex flex-col ${todos.length > 0 ? "justify-start" : "justify-center"
-        } items-center min-h-svh w-full bg-gray-100`}
+      className={`landing-page relative flex flex-col ${
+        todos.length > 0 ? "justify-start" : "justify-center"
+      } items-center min-h-svh w-full bg-gray-100`}
     >
-      <div className={`add-todo sticky top-0 flex justify-center items-center h-fit w-full backdrop-blur-xl z-20 overflow-visible`}>
+      <div
+        className={`add-todo sticky top-0 flex justify-center items-center h-fit w-full backdrop-blur-xl z-20 overflow-visible`}
+      >
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${todos.length > 0 ? "items-start" : "items-center"
-            } gap-4 h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${
+            todos.length > 0 ? "items-start" : "items-center"
+          } gap-4 h-fit w-full p-10`}
         >
           <div className="logo flex justify-center items-center h-fit w-full">
             <p
-              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${todos.length > 0 ? "justify-between" : "justify-center"
-                }`}
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
+                todos.length > 0 ? "justify-between" : "justify-center"
+              }`}
             >
               Todolist{" "}
               <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
-                PRO
+                PRO V1
               </span>
             </p>
+            <button
+              type="button"
+              className={`${
+                todos.length > 0 ? "ml-7" : "ml-0 hidden"
+              } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
+              onClick={() => window.location.pathname = "/categories"}
+            >
+              Categories
+            </button>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             <div className="flex justify-between items-center gap-7 w-full">
@@ -200,8 +232,9 @@ const Todos = () => {
       </div>
       {todos.length > 0 && (
         <div
-          className={`todos ${todos.length > 0 ? "relative" : "absolute"
-            } flex justify-center items-center h-fit w-full px-10 mb-10`}
+          className={`todos ${
+            todos.length > 0 ? "relative" : "absolute"
+          } flex justify-center items-center h-fit w-full px-10 mb-10`}
         >
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             {categories.map((category) => (
@@ -209,11 +242,15 @@ const Todos = () => {
                 className="category flex flex-col justify-start items-start gap-2 w-full"
                 key={category.id}
               >
-                <h2 className="category-label text-xl font-semibold mt-4">{category.label}</h2>
+                <h2 className="category-label text-xl font-semibold mt-4">
+                  {category.label}
+                </h2>
                 <div className="todos flex flex-col gap-2 w-full">
                   {todos.filter((todo) => todo.category.id === category.id)
                     .length === 0 ? (
-                    <p className="no-todos text-gray-500 ml-2">No tasks in this category yet.</p>
+                    <p className="no-todos text-gray-500 ml-2">
+                      No tasks in this category yet.
+                    </p>
                   ) : (
                     todos
                       .filter((todo) => todo.category.id === category.id)
