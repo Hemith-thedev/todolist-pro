@@ -2,30 +2,36 @@ import { useState, useEffect } from "react";
 import { Todo, Category } from "../../data/Types";
 import Wrapper from "../../components/common/Wrapper";
 import Dropdown from "../../components/common/Dropdown";
-import { NavLink } from "react-router-dom";
-import { Check } from "lucide-react";
 import TodoCard from "../../components/common/Todo";
 
 const Todos = () => {
   const LOCALSTORAGE_TODOS_KEY = "todolistpro-user-todos";
   const LOCALSTORAGE_CATEGORIES_KEY = "todolistpro-user-categories";
+
   const [todos, setTodos] = useState<Todo[]>(() => {
     const SavedTodos = localStorage.getItem(LOCALSTORAGE_TODOS_KEY);
     return SavedTodos ? JSON.parse(SavedTodos) : [];
   });
-  const [categories, setCategories] = useState<Category[]>(() => {
+
+  const [categories] = useState<Category[]>(() => {
     const SavedCategories = localStorage.getItem(LOCALSTORAGE_CATEGORIES_KEY);
     return SavedCategories ? JSON.parse(SavedCategories) : [];
   });
+
+  // NEW STATE for confirmation
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(null);
+
   useEffect(() => {
     localStorage.setItem(LOCALSTORAGE_TODOS_KEY, JSON.stringify(todos));
   }, [todos]);
+
+  // ... (GenerateUniqueId and other states remain the same) ...
   const GenerateUniqueId = (array: any[]) => {
     const existingIds = new Set(array.map((element) => element.id));
-    const MIN_ID = 10000000;
-    const MAX_ID = 99999999;
     let newId;
     let isUnique = false;
+    const MIN_ID = 10000000;
+    const MAX_ID = 99999999;
     while (!isUnique) {
       newId = Math.floor(Math.random() * (MAX_ID - MIN_ID + 1)) + MIN_ID;
       if (!existingIds.has(newId)) {
@@ -34,113 +40,125 @@ const Todos = () => {
     }
     return newId as number;
   };
+
   const [userSelectedCategory, setUserSelectedCategory] = useState<Category>({
-    id: GenerateUniqueId(categories),
+    id: 0,
     label: "",
     color: "",
   });
+
   const [todo, setTodo] = useState<Todo>({
     id: GenerateUniqueId(todos),
     label: "",
     category: {
-      id: GenerateUniqueId(categories),
+      id: 0,
       label: "",
       color: "",
     },
     completed: false,
-    createdAt: "",
-    updatedAt: "",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   });
+
   const [error, setError] = useState<string>("");
-  const [editingIndex, setEditingIndex] = useState<any>(null);
-  const [editingTodoLabel, setEditingTodoLabel] = useState<string>("");
-  const [editingTodoCategory, setEditingTodoCategory] = useState<Category>({
-    id: GenerateUniqueId(categories),
-    label: "",
-    color: "",
-  });
+
+  // Handlers for the TodoCard
+
+  const handleUpdate = (id: number, updatedLabel: string, updatedCategory: Category) => {
+    setTodos(prevTodos =>
+      prevTodos.map(t =>
+        t.id === id ? { ...t, label: updatedLabel, category: updatedCategory, updatedAt: new Date().toISOString() } : t
+      )
+    );
+  };
+
+  const handleToggleComplete = (id: number) => {
+    setTodos(prevTodos =>
+      prevTodos.map(t =>
+        t.id === id ? { ...t, completed: !t.completed, updatedAt: new Date().toISOString() } : t
+      )
+    );
+  };
+
+  // UPDATED HANDLER: Starts the confirmation flow (passed to TodoCard's delete button)
+  const handleDeleteClick = (id: number) => {
+    setConfirmingDeleteId(id);
+  };
+
+  // NEW HANDLER: Executes deletion if confirmed (passed to TodoCard's confirmation button)
+  const handleDeleteConfirm = (id: number) => {
+    setTodos(prevTodos => prevTodos.filter(t => t.id !== id));
+    setConfirmingDeleteId(null);
+  };
+
+  // NEW HANDLER: Cancels confirmation (passed to TodoCard's cancel button)
+  const handleDeleteCancel = () => {
+    setConfirmingDeleteId(null);
+  };
+
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setTodo({ ...todo, [name]: value });
   };
+
   const setSelectedCategory = (category: Category) => {
     setUserSelectedCategory(category);
     setTodo({ ...todo, category: category });
   };
-  const handleEditSave = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const UpdatedTodos = todos.map((todo) => {
-      if (todo.id === editingIndex) {
-        return {
-          ...todo,
-          label: editingTodoLabel,
-          category: editingTodoCategory,
-        };
-      }
-      return todo;
-    });
-    setTodos(UpdatedTodos);
-    setEditingIndex(null);
-    setEditingTodoLabel("");
-    setEditingTodoCategory({
-      id: GenerateUniqueId(categories),
-      label: "",
-      color: "",
-    });
-  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (todo.label !== "") {
-      setTodos([...todos, todo]);
-      setError("");
-      setSelectedCategory({
-        id: GenerateUniqueId(categories),
-        label: "",
-        color: "",
-      });
-      setTodo({
-        id: GenerateUniqueId(todos),
-        label: "",
-        category: {
-          id: GenerateUniqueId(categories),
-          label: "",
-          color: "",
-        },
-        completed: false,
-        createdAt: "",
-        updatedAt: "",
-      });
-      setUserSelectedCategory({
-        id: GenerateUniqueId(categories),
-        label: "",
-        color: "",
-      });
-    } else {
+
+    if (todo.label === "") {
       setError("Please enter a todo");
-      setTimeout(() => {
-        setError("");
-      }, 3000);
+      setTimeout(() => setError(""), 3000);
+      return;
     }
+
+    if (todo.category.id === 0) {
+      setError("Please select a category");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    const newTodoWithTimestamp: Todo = {
+      ...todo,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      id: GenerateUniqueId(todos),
+    };
+
+    setTodos([...todos, newTodoWithTimestamp]);
+    setError("");
+
+    setUserSelectedCategory({ id: 0, label: "", color: "" });
+    setTodo({
+      id: GenerateUniqueId([...todos, newTodoWithTimestamp]),
+      label: "",
+      category: { id: 0, label: "", color: "" },
+      completed: false,
+      createdAt: "",
+      updatedAt: "",
+    });
   };
+
   return (
     <main
-      className={`landing-page relative flex flex-col ${
-        todos.length > 0 ? "justify-start" : "justify-center"
-      } items-center h-svh w-full bg-gray-100`}
+      className={`landing-page relative flex flex-col ${todos.length > 0 ? "justify-start" : "justify-center"
+        } items-center min-h-svh w-full bg-gray-100`}
     >
-      <div className={`add-todo flex justify-center items-center h-fit w-full`}>
+      <div className={`add-todo sticky top-0 flex justify-center items-center h-fit w-full backdrop-blur-xl z-20 overflow-visible`}>
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${
-            todos.length > 0 ? "items-start" : "items-center"
-          } gap-4 h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${todos.length > 0 ? "items-start" : "items-center"
+            } gap-4 h-fit w-full p-10`}
         >
           <div className="logo flex justify-center items-center h-fit w-full">
             <p
-              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
-                todos.length > 0 ? "justify-between" : "justify-center"
-              }`}
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${todos.length > 0 ? "justify-between" : "justify-center"
+                }`}
             >
               Todolist{" "}
               <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
@@ -165,7 +183,7 @@ const Todos = () => {
                   <Dropdown
                     placeholder="Category"
                     options={categories}
-                    onSelect={(option) => setSelectedCategory(option)}
+                    onSelect={setSelectedCategory}
                   />
                 </div>
               </div>
@@ -182,62 +200,41 @@ const Todos = () => {
       </div>
       {todos.length > 0 && (
         <div
-          className={`todos ${
-            todos.length > 0 ? "relative" : "absolute"
-          } flex justify-center items-center h-fit w-full`}
+          className={`todos ${todos.length > 0 ? "relative" : "absolute"
+            } flex justify-center items-center h-fit w-full px-10 mb-10`}
         >
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             {categories.map((category) => (
               <div
-                className="category flex flex-col justify-start items-start gap-2"
+                className="category flex flex-col justify-start items-start gap-2 w-full"
                 key={category.id}
               >
-                <h2 className="category-label">{category.label}</h2>
-                <div className="todos">
+                <h2 className="category-label text-xl font-semibold mt-4">{category.label}</h2>
+                <div className="todos flex flex-col gap-2 w-full">
                   {todos.filter((todo) => todo.category.id === category.id)
                     .length === 0 ? (
-                    <p className="no-todos">No todos in this category</p>
+                    <p className="no-todos text-gray-500 ml-2">No tasks in this category yet.</p>
                   ) : (
                     todos
                       .filter((todo) => todo.category.id === category.id)
-                      .map((todo) => <TodoCard key={todo.id} {...todo} />)
+                      .map((todo) => (
+                        <TodoCard
+                          key={todo.id}
+                          {...todo}
+                          categories={categories}
+                          onUpdate={handleUpdate}
+                          onToggleComplete={handleToggleComplete}
+                          // PASSING CONFIRMATION LOGIC DOWN
+                          onDeleteClick={handleDeleteClick}
+                          isConfirming={confirmingDeleteId === todo.id}
+                          onDeleteConfirm={handleDeleteConfirm}
+                          onDeleteCancel={handleDeleteCancel}
+                        />
+                      ))
                   )}
                 </div>
               </div>
             ))}
-          </Wrapper>
-        </div>
-      )}
-      {editingIndex !== 0 && (
-        <div className="edit-container absolute hidden">
-          <Wrapper>
-            <div className="index-number">Editing Todo: {editingIndex}</div>
-            <form
-              className="edit-todo-form"
-              noValidate
-              onSubmit={handleEditSave}
-            >
-              <div className="todo-info">
-                <input
-                  type="text"
-                  placeholder="Edit your Todo"
-                  value={editingTodoLabel}
-                  onChange={(e) => setEditingTodoLabel(e.target.value)}
-                />
-              </div>
-              <div className="todo-info">
-                <Dropdown
-                  placeholder="Category"
-                  options={[
-                    { id: 45454545, label: "General", color: "#ff00ff" },
-                    { id: 45454544, label: "Professional", color: "#00ff00" },
-                    { id: 45454546, label: "Personal", color: "#0000ff" },
-                  ]}
-                  onSelect={(option) => setEditingTodoCategory(option)}
-                />
-              </div>
-              <button type="submit">Save</button>
-            </form>
           </Wrapper>
         </div>
       )}
