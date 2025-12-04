@@ -6,3 +6,20 @@
   background: rgb(217, 119, 6);
   color: #fff;
 }
+::-webkit-scrollbar {
+  background-color: rgb(243, 244, 246);
+  height: 1rem;
+  width: 1rem;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(227, 119, 6);
+  border-radius: 10px;
+  border: 0.3rem solid rgb(243, 244, 246);
+}
+.dropdown-menu {
+  & ul {
+    &::-webkit-scrollbar-track {
+      margin: 1rem;
+    }
+  }
+}

@@ -7,7 +7,7 @@ const Categories = () => {
   const LOCALSTORAGE_KEY = "todolistpro-user-categories";
   const [categories, setCategories] = useState<Category[]>(() => {
     const SavedCategories = localStorage.getItem(LOCALSTORAGE_KEY);
-    return (SavedCategories) ? JSON.parse(SavedCategories) : [];
+    return SavedCategories ? JSON.parse(SavedCategories) : [];
   });
   useEffect(() => {
     localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(categories));
@@ -25,13 +25,15 @@ const Categories = () => {
       }
     }
     return newId as number;
-  }
+  };
   const [category, setCategory] = useState<Category>({
     id: GenerateUniqueId(categories),
     label: "",
     color: "",
   });
-  const [colors, setColors] = useState<{ id: number; label: string; color: string }[]>([
+  const [colors, setColors] = useState<
+    { id: number; label: string; color: string }[]
+  >([
     { id: 1, label: "Red", color: "hsl(0, 100%, 80%)" },
     { id: 2, label: "Orange", color: "hsl(30, 100%, 80%)" },
     { id: 3, label: "Yellow", color: "hsl(60, 100%, 80%)" },
@@ -54,8 +56,8 @@ const Categories = () => {
         return {
           ...category,
           labe: editingCategoryLabel,
-          color: editingCategoryColor
-        }
+          color: editingCategoryColor,
+        };
       }
       return category;
     });
@@ -63,7 +65,7 @@ const Categories = () => {
     setEditingIndex(null);
     setEditingCategoryLabel("");
     setEditingCategoryColor("");
-  }
+  };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (category.label !== "") {
@@ -82,15 +84,32 @@ const Categories = () => {
     }
   };
   return (
-    <main className={`landing-page relative flex flex-col ${(categories.length > 0) ? "justify-start" : "justify-center"} items-center h-svh w-full bg-gray-100`}>
-      <div className={`add-category flex justify-center items-center h-fit w-full`}>
+    <main
+      className={`landing-page relative flex flex-col ${
+        categories.length > 0 ? "justify-start" : "justify-center"
+      } items-center h-svh w-full bg-gray-100`}
+    >
+      <div
+        className={`add-category flex justify-center items-center h-fit w-full z-20 overflow-visible`}
+      >
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${(categories.length > 0) ? "items-start" : "items-center"} gap-4 h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${
+            categories.length > 0 ? "items-start" : "items-center"
+          } gap-4 h-fit w-full p-10`}
         >
           <div className="logo flex justify-center items-center h-fit w-full">
-            <p className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${(categories.length > 0) ? "justify-between" : "justify-center"}`}>Todolist <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">PRO</span></p>
+            <p
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
+                categories.length > 0 ? "justify-between" : "justify-center"
+              }`}
+            >
+              Todolist{" "}
+              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
+                PRO
+              </span>
+            </p>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             <div className="flex justify-between items-center gap-7 w-full">
@@ -101,10 +120,12 @@ const Categories = () => {
                     placeholder="Category"
                     name="label"
                     value={category.label}
-                    onChange={(e) => setCategory({
-                      ...category,
-                      label: e.target.value
-                    })}
+                    onChange={(e) =>
+                      setCategory({
+                        ...category,
+                        label: e.target.value,
+                      })
+                    }
                     className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out"
                   />
                 </div>
@@ -112,10 +133,15 @@ const Categories = () => {
                   <Dropdown
                     placeholder="Colors"
                     options={colors}
-                    onSelect={(option) => setCategory({ ...category, color: option.color })}
+                    onSelect={(option) =>
+                      setCategory({ ...category, color: option.color })
+                    }
                   />
                   <div className="color-preview">
-                    <div className="color" style={{ backgroundColor: category.color }}></div>
+                    <div
+                      className="color"
+                      style={{ backgroundColor: category.color }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -130,28 +156,42 @@ const Categories = () => {
           </Wrapper>
         </form>
       </div>
-      <div className={`todos ${(categories.length > 0) ? "relative" : "absolute"} flex flex-col justify-center items-center gap-4 h-fit w-full px-10`}>
-        <p className="text-4xl bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent overflow-visible">Categories</p>
-        {
-          categories.map((category) => (
-            <div className="category flex justify-between items-center gap-7 h-fit w-full rounded-xl shadow-md" key={category.id}>
+      {categories.length > 0 && (
+        <div
+          className={`todos ${
+            categories.length > 0 ? "relative" : "absolute"
+          } flex flex-col justify-center items-center gap-4 h-fit w-full px-10 z-1`}
+        >
+          <p className="text-2xl bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent overflow-visible">
+            Categories
+          </p>
+          {categories.map((category) => (
+            <div
+              className="category flex justify-between items-center gap-7 h-fit w-full rounded-xl shadow-md"
+              key={category.id}
+            >
               <Wrapper className="flex justify-between items-center h-fit w-full px-6 py-3">
-                <div className="label">
-                  <p>{category.label}</p>
-                </div>
-                <div className="color flex justify-end items-center gap-3">
-                  <div className="preview h-10 w-10 rounded-md" style={{
-                    backgroundColor: category.color
-                  }}></div>
+                <div className="info flex justify-between items-center h-fit w-full">
                   <div className="label">
-                    <p>{category.color}</p>
+                    <p>{category.label}</p>
+                  </div>
+                  <div className="color flex justify-end items-center gap-3">
+                    <div className="label">
+                      <p>{category.color}</p>
+                    </div>
+                    <div
+                      className="preview h-10 w-10 rounded-md"
+                      style={{
+                        backgroundColor: category.color,
+                      }}
+                    ></div>
                   </div>
                 </div>
               </Wrapper>
             </div>
-          ))
-        }
-      </div>
+          ))}
+        </div>
+      )}
       {editingIndex !== 0 && (
         <div className="edit-container absolute hidden">
           <Wrapper>
@@ -183,6 +223,6 @@ const Categories = () => {
       )}
     </main>
   );
-}
+};
 
 export default Categories;

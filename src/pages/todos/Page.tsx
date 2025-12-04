@@ -3,10 +3,12 @@ import { Todo, Category } from "../../data/Types";
 import Wrapper from "../../components/common/Wrapper";
 import Dropdown from "../../components/common/Dropdown";
 import { NavLink } from "react-router-dom";
+import { Check } from "lucide-react";
+import TodoCard from "../../components/common/Todo";
 
 const Todos = () => {
   const LOCALSTORAGE_TODOS_KEY = "todolistpro-user-todos";
-  const LOCALSTORAGE_CATEGORIES_KEY = "todolistpro-user-todos";
+  const LOCALSTORAGE_CATEGORIES_KEY = "todolistpro-user-categories";
   const [todos, setTodos] = useState<Todo[]>(() => {
     const SavedTodos = localStorage.getItem(LOCALSTORAGE_TODOS_KEY);
     return SavedTodos ? JSON.parse(SavedTodos) : [];
@@ -108,6 +110,11 @@ const Todos = () => {
         createdAt: "",
         updatedAt: "",
       });
+      setUserSelectedCategory({
+        id: GenerateUniqueId(categories),
+        label: "",
+        color: "",
+      });
     } else {
       setError("Please enter a todo");
       setTimeout(() => {
@@ -116,15 +123,30 @@ const Todos = () => {
     }
   };
   return (
-    <main className={`landing-page relative flex flex-col ${(todos.length > 0) ? "justify-start" : "justify-center"} items-center h-svh w-full bg-gray-100`}>
+    <main
+      className={`landing-page relative flex flex-col ${
+        todos.length > 0 ? "justify-start" : "justify-center"
+      } items-center h-svh w-full bg-gray-100`}
+    >
       <div className={`add-todo flex justify-center items-center h-fit w-full`}>
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${(todos.length > 0) ? "items-start" : "items-center"} gap-4 h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${
+            todos.length > 0 ? "items-start" : "items-center"
+          } gap-4 h-fit w-full p-10`}
         >
           <div className="logo flex justify-center items-center h-fit w-full">
-            <p className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${(todos.length > 0) ? "justify-between" : "justify-center"}`}>Todolist <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">PRO</span></p>
+            <p
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
+                todos.length > 0 ? "justify-between" : "justify-center"
+              }`}
+            >
+              Todolist{" "}
+              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
+                PRO
+              </span>
+            </p>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             <div className="flex justify-between items-center gap-7 w-full">
@@ -142,11 +164,7 @@ const Todos = () => {
                 <div className="input-field">
                   <Dropdown
                     placeholder="Category"
-                    options={[
-                      { id: 45454545, label: "General", color: "#ff00ff" },
-                      { id: 45454544, label: "Professional", color: "#00ff00" },
-                      { id: 45454546, label: "Personal", color: "#0000ff" },
-                    ]}
+                    options={categories}
                     onSelect={(option) => setSelectedCategory(option)}
                   />
                 </div>
@@ -162,73 +180,34 @@ const Todos = () => {
           </Wrapper>
         </form>
       </div>
-      <div className={`todos ${(todos.length > 0) ? "relative" : "absolute"}`}>
-        <Wrapper>
-          {categories.map((category) => (
-            <div className="category" key={category.id}>
-              <h2 className="category-label">{category.label}</h2>
-              {todos
-                .filter((todo) => todo.category === category)
-                .map((todo) => (
-                  <div className="todos">
-                    <div className="todo" key={todo.id}>
-                      <div className="checkbox-label">
-                        <div
-                          className="checkbox"
-                          onClick={() => {
-                            const UpdatedTodos = todos.map((todo) => {
-                              if (todo.id === todo.id) {
-                                return {
-                                  ...todo,
-                                  completed: !todo.completed,
-                                };
-                              }
-                              return todo;
-                            });
-                            setTodos(UpdatedTodos);
-                          }}
-                          style={{
-                            height: "20px",
-                            width: "20px",
-                            backgroundColor: todo.completed
-                              ? category.color
-                              : "",
-                            border: `2px solid ${category.color}`,
-                          }}
-                        ></div>
-                        <div className="label">
-                          <p>{todo.label}</p>
-                        </div>
-                      </div>
-                      <div className="options">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingIndex(todo.id);
-                            setEditingTodoLabel(todo.label);
-                            setEditingTodoCategory(todo.category);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            const UpdatedTodos = todos.filter(
-                              (todo) => todo.id !== todo.id
-                            );
-                            setTodos(UpdatedTodos);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          ))}
-        </Wrapper>
-      </div>
+      {todos.length > 0 && (
+        <div
+          className={`todos ${
+            todos.length > 0 ? "relative" : "absolute"
+          } flex justify-center items-center h-fit w-full`}
+        >
+          <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
+            {categories.map((category) => (
+              <div
+                className="category flex flex-col justify-start items-start gap-2"
+                key={category.id}
+              >
+                <h2 className="category-label">{category.label}</h2>
+                <div className="todos">
+                  {todos.filter((todo) => todo.category.id === category.id)
+                    .length === 0 ? (
+                    <p className="no-todos">No todos in this category</p>
+                  ) : (
+                    todos
+                      .filter((todo) => todo.category.id === category.id)
+                      .map((todo) => <TodoCard key={todo.id} {...todo} />)
+                  )}
+                </div>
+              </div>
+            ))}
+          </Wrapper>
+        </div>
+      )}
       {editingIndex !== 0 && (
         <div className="edit-container absolute hidden">
           <Wrapper>
