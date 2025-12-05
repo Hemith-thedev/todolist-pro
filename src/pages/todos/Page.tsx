@@ -202,8 +202,8 @@ const Todos = () => {
             </button>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
-            <div className="flex justify-between items-center gap-7 w-full">
-              <div className="flex justify-between items-center gap-7 h-fit w-full">
+            <div className="flex justify-between items-center gap-7 w-full max-md:flex-col max-md:gap-4">
+              <div className="flex justify-between items-center gap-7 h-fit w-full max-md:flex-col max-md:gap-4">
                 <div className="input-field flex w-full">
                   <input
                     type="text"
@@ -214,7 +214,7 @@ const Todos = () => {
                     className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out"
                   />
                 </div>
-                <div className="input-field">
+                <div className="input-field max-md:w-full">
                   <Dropdown
                     placeholder="Category"
                     options={categories}
@@ -225,7 +225,7 @@ const Todos = () => {
               </div>
               <button
                 type="submit"
-                className="button flex justify-center items-center gap-3 bg-gray-100 text-gray-900 p-6 rounded-2xl shadow-xl shadow-amber-600/10 text-nowrap hover:shadow-2xl hover:shadow-amber-600/100 hover:bg-gray-900 hover:text-white"
+                className="button flex justify-center items-center gap-3 bg-gray-100 text-gray-900 p-6 rounded-2xl shadow-xl shadow-amber-600/10 text-nowrap hover:shadow-2xl hover:shadow-amber-600/100 hover:bg-gray-900 hover:text-white max-md:w-full"
               >
                 Add Task
               </button>

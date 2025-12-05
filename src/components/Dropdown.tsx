@@ -97,7 +97,7 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
 
   return (
     <div
-      className="dropdown relative flex flex-col justify-start items-center h-fit w-fit"
+      className="dropdown relative flex flex-col justify-start items-center h-fit w-fit max-md:w-full"
       ref={dropdownRef}
     >
       <button
@@ -109,7 +109,7 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
             ? 'shadow-2xl shadow-amber-600/100 bg-gray-900 text-white'
             : `${buttonShadow} ${buttonColor} ${buttonTextColor} hover:bg-gray-900 hover:text-white`
           }
-        z-1`}
+        z-1 max-md:w-full max-md:justify-between max-md:p-3 max-md:rounded-lg`}
         // Use inline style for button color if it's a category color (since Tailwind can't read variables for bg-color)
         style={{
           backgroundColor: isSelected && !isOpen ? selected.color : undefined,
