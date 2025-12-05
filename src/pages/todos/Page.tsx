@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Todo, Category } from "../../data/Types";
-import Wrapper from "../../components/common/Wrapper";
-import Dropdown from "../../components/common/Dropdown";
-import TodoCard from "../../components/common/Todo";
+import Wrapper from "../../components/Wrapper";
+import Dropdown from "../../components/Dropdown";
+import TodoCard from "../../components/Todo";
+import UseSmoothScroll from "../../hooks/UseSmoothScroll";
 
 const Todos = () => {
+  UseSmoothScroll();
+
   const LOCALSTORAGE_TODOS_KEY = "todolistpro-user-todos";
   const LOCALSTORAGE_CATEGORIES_KEY = "todolistpro-user-categories";
 
@@ -43,11 +46,10 @@ const Todos = () => {
     return newId as number;
   };
 
-  const [userSelectedCategory, setUserSelectedCategory] = useState<Category>({
-    id: 0,
-    label: "",
-    color: "",
-  });
+  // 🔑 State changed to allow null for reset
+  const [userSelectedCategory, setUserSelectedCategory] = useState<Category | null>(
+    null // Initialize as null to use the default placeholder
+  );
 
   const [todo, setTodo] = useState<Todo>({
     id: GenerateUniqueId(todos),
@@ -75,11 +77,11 @@ const Todos = () => {
       prevTodos.map((t) =>
         t.id === id
           ? {
-              ...t,
-              label: updatedLabel,
-              category: updatedCategory,
-              updatedAt: new Date().toISOString(),
-            }
+            ...t,
+            label: updatedLabel,
+            category: updatedCategory,
+            updatedAt: new Date().toISOString(),
+          }
           : t
       )
     );
@@ -90,10 +92,10 @@ const Todos = () => {
       prevTodos.map((t) =>
         t.id === id
           ? {
-              ...t,
-              completed: !t.completed,
-              updatedAt: new Date().toISOString(),
-            }
+            ...t,
+            completed: !t.completed,
+            updatedAt: new Date().toISOString(),
+          }
           : t
       )
     );
@@ -121,6 +123,7 @@ const Todos = () => {
   };
 
   const setSelectedCategory = (category: Category) => {
+    // Update both the selected category state and the todo draft
     setUserSelectedCategory(category);
     setTodo({ ...todo, category: category });
   };
@@ -128,13 +131,14 @@ const Todos = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (todo.label === "") {
+    if (todo.label.trim() === "") { // Using trim for better validation
       setError("Please enter a todo");
       setTimeout(() => setError(""), 3000);
       return;
     }
 
-    if (todo.category.id === 0) {
+    // Check if a category has been selected
+    if (!userSelectedCategory || userSelectedCategory.id === 0) {
       setError("Please select a category");
       setTimeout(() => setError(""), 3000);
       return;
@@ -142,7 +146,7 @@ const Todos = () => {
 
     const newTodoWithTimestamp: Todo = {
       ...todo,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(), // Use ISO string for accurate comparison/sorting
       updatedAt: new Date().toISOString(),
       id: GenerateUniqueId(todos),
     };
@@ -150,7 +154,10 @@ const Todos = () => {
     setTodos([...todos, newTodoWithTimestamp]);
     setError("");
 
-    setUserSelectedCategory({ id: 0, label: "", color: "" });
+    // 🔑 1. Reset the userSelectedCategory state to null/default value
+    setUserSelectedCategory(null);
+
+    // 2. Reset the todo draft state
     setTodo({
       id: GenerateUniqueId([...todos, newTodoWithTimestamp]),
       label: "",
@@ -163,9 +170,8 @@ const Todos = () => {
 
   return (
     <main
-      className={`landing-page relative flex flex-col ${
-        todos.length > 0 ? "justify-start" : "justify-center"
-      } items-center min-h-svh w-full bg-gray-100`}
+      className={`landing-page relative flex flex-col ${todos.length > 0 ? "justify-start" : "justify-center"
+        } items-center min-h-svh w-full bg-gray-100`}
     >
       <div
         className={`add-todo sticky top-0 flex justify-center items-center h-fit w-full backdrop-blur-xl z-20 overflow-visible`}
@@ -173,15 +179,13 @@ const Todos = () => {
         <form
           noValidate
           onSubmit={handleSubmit}
-          className={`flex flex-col justify-center ${
-            todos.length > 0 ? "items-start" : "items-center"
-          } gap-4 h-fit w-full p-10`}
+          className={`flex flex-col justify-center ${todos.length > 0 ? "items-start" : "items-center"
+            } gap-4 h-fit w-full p-10`}
         >
           <div className="logo flex justify-center items-center h-fit w-full">
             <p
-              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
-                todos.length > 0 ? "justify-between" : "justify-center"
-              }`}
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${todos.length > 0 ? "justify-between" : "justify-center"
+                }`}
             >
               Todolist{" "}
               <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
@@ -190,9 +194,8 @@ const Todos = () => {
             </p>
             <button
               type="button"
-              className={`${
-                todos.length > 0 ? "ml-7" : "ml-0 hidden"
-              } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
+              className={`${todos.length > 0 ? "ml-7" : "ml-0 hidden"
+                } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
               onClick={() => window.location.pathname = "/categories"}
             >
               Categories
@@ -216,6 +219,7 @@ const Todos = () => {
                     placeholder="Category"
                     options={categories}
                     onSelect={setSelectedCategory}
+                    initialSelectedOption={userSelectedCategory}
                   />
                 </div>
               </div>
@@ -232,9 +236,8 @@ const Todos = () => {
       </div>
       {todos.length > 0 && (
         <div
-          className={`todos ${
-            todos.length > 0 ? "relative" : "absolute"
-          } flex justify-center items-center h-fit w-full px-10 mb-10`}
+          className={`todos ${todos.length > 0 ? "relative" : "absolute"
+            } flex justify-center items-center h-fit w-full px-10 mb-10`}
         >
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             {categories.map((category) => (

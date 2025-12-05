@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Todo, Category } from "../../data/Types";
+import { Todo, Category } from "../data/Types";
 import { Check } from "lucide-react";
 import Dropdown from "./Dropdown";
 
@@ -11,7 +11,6 @@ interface TodoCardProps extends Todo {
     updatedCategory: Category
   ) => void;
   onToggleComplete: (id: number) => void;
-  // NEW PROPS for confirmation flow
   onDeleteClick: (id: number) => void;
   isConfirming: boolean;
   onDeleteConfirm: (id: number) => void;
@@ -36,20 +35,55 @@ const TodoCard = ({
   const [editingTodoCategory, setEditingTodoCategory] =
     useState<Category>(category);
 
+  // --- NEW STATE FOR INLINE ERROR FEEDBACK ---
+  const [showLabelError, setShowLabelError] = useState<boolean>(false);
+  const [showCategoryError, setShowCategoryError] = useState<boolean>(false);
+
   const handleSaveEdit = () => {
-    onUpdate(id, editingTodoLabel, editingTodoCategory);
-    setIsEditing(false);
+    let isValid = true;
+
+    // 1. Validate Label
+    if (editingTodoLabel.trim() === "") {
+      setShowLabelError(true);
+      isValid = false;
+    } else {
+      setShowLabelError(false);
+    }
+
+    // 2. Validate Category
+    // Assuming a valid category has an 'id' and 'label'
+    if (!editingTodoCategory || editingTodoCategory.id === 0 || editingTodoCategory.label === "") {
+      setShowCategoryError(true);
+      isValid = false;
+    } else {
+      setShowCategoryError(false);
+    }
+
+    if (isValid) {
+      onUpdate(id, editingTodoLabel, editingTodoCategory);
+      setIsEditing(false);
+    }
   };
 
   const handleStartEdit = () => {
     setIsEditing(true);
     setEditingTodoLabel(label);
     setEditingTodoCategory(category);
+    // Reset errors when starting edit
+    setShowLabelError(false);
+    setShowCategoryError(false);
   };
 
   const handleToggleComplete = () => {
     onToggleComplete(id);
   };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    // Reset errors when cancelling edit
+    setShowLabelError(false);
+    setShowCategoryError(false);
+  }
 
   // UPDATED RENDER LOGIC
   return (
@@ -67,22 +101,31 @@ const TodoCard = ({
         </div>
         <div className="label w-full">
           {isEditing ? (
-            <div className="flex gap-2 items-center w-full">
-              <input
-                type="text"
-                value={editingTodoLabel}
-                onChange={(e) => setEditingTodoLabel(e.target.value)}
-                className="bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out"
-              />
-              <Dropdown
-                placeholder="Select Category"
-                options={categories}
-                // --- 💡 FIX APPLIED HERE ---
-                // We pass the current category object to the Dropdown so it initializes the selection correctly.
-                initialSelectedOption={editingTodoCategory}
-                // --- 💡 END FIX ---
-                onSelect={setEditingTodoCategory}
-              />
+            <div className="flex flex-col gap-2 w-full"> {/* Changed to flex-col to stack input and error message */}
+              <div className="flex gap-2 items-center w-full">
+                <input
+                  type="text"
+                  value={editingTodoLabel}
+                  // 💡 PLACEHOLDER CHANGE: Show error text when validation fails
+                  placeholder={showLabelError ? "Enter your Todo" : ""}
+                  onChange={(e) => {
+                    setEditingTodoLabel(e.target.value);
+                    // Clear error as user types
+                    setShowLabelError(false);
+                  }}
+                  className={`bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out`}
+                />
+                <Dropdown
+                  placeholder={showCategoryError ? "Select a Category" : "Select Category"}
+                  options={categories}
+                  initialSelectedOption={editingTodoCategory}
+                  // 💡 CATEGORY SELECT CHANGE: Clear error when a selection is made
+                  onSelect={(option) => {
+                    setEditingTodoCategory(option);
+                    setShowCategoryError(false);
+                  }}
+                />
+              </div>
             </div>
           ) : (
             <p style={{ '--color': category.color } as React.CSSProperties} className={`${completed ? "line-through text-gray-500" : ""} selection:bg-[var(--color)] selection:text-gray-900`}>
@@ -93,7 +136,7 @@ const TodoCard = ({
       </div>
       <div className="options flex gap-3 items-center">
         {isConfirming ? (
-          // CONFIRMATION UI (No change needed here)
+          // CONFIRMATION UI
           <>
             <p className="text-amber-600 text-nowrap">Are you sure?</p>
             <button
@@ -112,11 +155,11 @@ const TodoCard = ({
             </button>
           </>
         ) : isEditing ? (
-          // EDITING UI (No change needed here)
+          // EDITING UI
           <>
             <button
               type="button"
-              className="save text-blue-600 p-2 rounded-md hover:text-blue-800 hover:bg-blue-200 hover:shadow-xl hover:shadow-blue-600/50"
+              className="save text-green-600 p-2 rounded-md hover:text-green-800 hover:bg-green-200 hover:shadow-xl hover:shadow-green-600/50"
               onClick={handleSaveEdit}
             >
               Save
@@ -124,17 +167,17 @@ const TodoCard = ({
             <button
               type="button"
               className="cancel text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
-              onClick={() => setIsEditing(false)}
+              onClick={handleCancelEdit}
             >
               Cancel
             </button>
           </>
         ) : (
-          // DEFAULT UI (No change needed here)
+          // DEFAULT UI
           <>
             <button
               type="button"
-              className="edit text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
+              className="edit text-blue-600 p-2 rounded-md hover:text-blue-800 hover:bg-blue-200 hover:shadow-xl hover:shadow-blue-600/50"
               onClick={handleStartEdit}
             >
               Edit
