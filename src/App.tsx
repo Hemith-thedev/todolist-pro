@@ -5,6 +5,8 @@ import { Pages, PageNotFoundRoute } from "./data/Pages";
 import { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
+import { Analytics } from "@vercel/analytics/react";
+
 function App() {
   const location = useLocation();
   useEffect(() => {
@@ -23,6 +25,7 @@ function App() {
         ))}
         <Route path={PageNotFoundRoute.path} element={<PageNotFoundRoute.component />} />
       </Routes>
+      <Analytics />
     </>
   );
 }
