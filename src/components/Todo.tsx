@@ -95,7 +95,7 @@ const TodoCard = ({
       <div className="checkbox-label flex items-start gap-3 w-full">
         {!isEditing && (
           <div
-            className="checkbox flex justify-center items-center min-h-5 min-w-5 w-5 cursor-pointer rounded-full transition duration-150"
+            className="checkbox flex justify-center items-center min-h-5 min-w-5 w-5 mt-0.5 cursor-pointer rounded-full transition duration-150"
             style={{
               backgroundColor: completed ? category.color : "transparent",
               border: completed ? "none" : `2px solid ${category.color}`,
