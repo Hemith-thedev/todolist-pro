@@ -28,6 +28,7 @@ function App() {
           element={<PageNotFoundRoute.component />}
         />
       </Routes>
+      <Analytics />
     </>
   );
 }
