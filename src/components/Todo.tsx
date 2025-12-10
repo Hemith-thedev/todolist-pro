@@ -92,7 +92,7 @@ const TodoCard = ({
   // UPDATED RENDER LOGIC
   return (
     <div className="todo flex justify-between items-center gap-2 p-4 shadow-md rounded-xl bg-gray-100 max-md:flex-col max-md:items-start">
-      <div className="checkbox-label flex items-center gap-3 w-full">
+      <div className="checkbox-label flex items-start gap-3 w-full">
         {!isEditing && (
           <div
             className="checkbox flex justify-center items-center min-h-5 min-w-5 w-5 cursor-pointer rounded-full transition duration-150"
@@ -142,7 +142,11 @@ const TodoCard = ({
               style={{ "--color": category.color } as React.CSSProperties}
               className={`${
                 completed ? "line-through text-gray-500" : ""
-              } selection:bg-[var(--color)] selection:text-gray-900`}
+              } selection:bg-[var(--color)] selection:text-gray-900 cursor-pointer`}
+              onClick={() => {
+                // if not in editing mode, toggle check / uncheck
+                onToggleComplete(id)
+              }}
             >
               {label}
             </p>

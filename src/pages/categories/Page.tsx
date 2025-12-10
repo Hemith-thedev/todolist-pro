@@ -292,7 +292,7 @@ const Categories = () => {
                       onSubmit={handleEditSave}
                       className="flex gap-4 items-center w-full max-md:flex-col max-md:gap-2"
                     >
-                      <div className="flex items-center max-md:flex-col max-md:gap-2">
+                      <div className="flex items-center max-md:flex-col max-md:gap-2 max-md:w-full">
                         <input
                           type="text"
                           value={editingCategoryLabel}
