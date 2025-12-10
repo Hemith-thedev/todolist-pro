@@ -52,7 +52,11 @@ const TodoCard = ({
 
     // 2. Validate Category
     // Assuming a valid category has an 'id' and 'label'
-    if (!editingTodoCategory || editingTodoCategory.id === 0 || editingTodoCategory.label === "") {
+    if (
+      !editingTodoCategory ||
+      editingTodoCategory.id === 0 ||
+      editingTodoCategory.label === ""
+    ) {
       setShowCategoryError(true);
       isValid = false;
     } else {
@@ -83,26 +87,30 @@ const TodoCard = ({
     // Reset errors when cancelling edit
     setShowLabelError(false);
     setShowCategoryError(false);
-  }
+  };
 
   // UPDATED RENDER LOGIC
   return (
-    <div className="todo flex justify-between items-center gap-2 p-4 shadow-md rounded-xl bg-gray-100">
+    <div className="todo flex justify-between items-center gap-2 p-4 shadow-md rounded-xl bg-gray-100 max-md:flex-col max-md:items-start">
       <div className="checkbox-label flex items-center gap-3 w-full">
-        <div
-          className="checkbox flex justify-center items-center h-5 w-5 cursor-pointer rounded-full transition duration-150"
-          style={{
-            backgroundColor: completed ? category.color : "transparent",
-            border: completed ? "none" : `2px solid ${category.color}`,
-          }}
-          onClick={!isEditing ? handleToggleComplete : undefined}
-        >
-          {completed ? <Check className="h-4 w-4 text-white" /> : null}
-        </div>
+        {!isEditing && (
+          <div
+            className="checkbox flex justify-center items-center min-h-5 min-w-5 w-5 cursor-pointer rounded-full transition duration-150"
+            style={{
+              backgroundColor: completed ? category.color : "transparent",
+              border: completed ? "none" : `2px solid ${category.color}`,
+            }}
+            onClick={!isEditing ? handleToggleComplete : undefined}
+          >
+            {completed ? <Check className="h-4 w-4 text-white" /> : null}
+          </div>
+        )}
         <div className="label w-full">
           {isEditing ? (
-            <div className="flex flex-col gap-2 w-full"> {/* Changed to flex-col to stack input and error message */}
-              <div className="flex gap-2 items-center w-full">
+            <div className="flex flex-col gap-2 w-full">
+              {" "}
+              {/* Changed to flex-col to stack input and error message */}
+              <div className="flex gap-2 items-center w-full max-md:flex-col max-md:items-start">
                 <input
                   type="text"
                   value={editingTodoLabel}
@@ -116,7 +124,9 @@ const TodoCard = ({
                   className={`bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out`}
                 />
                 <Dropdown
-                  placeholder={showCategoryError ? "Select a Category" : "Select Category"}
+                  placeholder={
+                    showCategoryError ? "Select a Category" : "Select Category"
+                  }
                   options={categories}
                   initialSelectedOption={editingTodoCategory}
                   // 💡 CATEGORY SELECT CHANGE: Clear error when a selection is made
@@ -128,7 +138,12 @@ const TodoCard = ({
               </div>
             </div>
           ) : (
-            <p style={{ '--color': category.color } as React.CSSProperties} className={`${completed ? "line-through text-gray-500" : ""} selection:bg-[var(--color)] selection:text-gray-900`}>
+            <p
+              style={{ "--color": category.color } as React.CSSProperties}
+              className={`${
+                completed ? "line-through text-gray-500" : ""
+              } selection:bg-[var(--color)] selection:text-gray-900`}
+            >
               {label}
             </p>
           )}
@@ -137,23 +152,25 @@ const TodoCard = ({
       <div className="options flex gap-3 items-center">
         {isConfirming ? (
           // CONFIRMATION UI
-          <>
+          <div className="flex items-center gap-2 max-md:flex-col max-md:items-start">
             <p className="text-amber-600 text-nowrap">Are you sure?</p>
-            <button
-              type="button"
-              className="text-nowrap text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
-              onClick={() => onDeleteConfirm(id)}
-            >
-              Yes, Delete
-            </button>
-            <button
-              type="button"
-              className="text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
-              onClick={onDeleteCancel}
-            >
-              Cancel
-            </button>
-          </>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="text-nowrap text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
+                onClick={() => onDeleteConfirm(id)}
+              >
+                Yes, Delete
+              </button>
+              <button
+                type="button"
+                className="text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
+                onClick={onDeleteCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         ) : isEditing ? (
           // EDITING UI
           <>

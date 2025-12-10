@@ -182,13 +182,13 @@ const Todos = () => {
           className={`flex flex-col justify-center ${todos.length > 0 ? "items-start" : "items-center"
             } gap-4 h-fit w-full p-10`}
         >
-          <div className="logo flex justify-center items-center h-fit w-full">
+          <div className={`logo flex justify-center items-center h-fit w-full ${(todos.length > 0) ? "max-md:justify-between" : "justify-center"} max-md:items-start`}>
             <p
               className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${todos.length > 0 ? "justify-between" : "justify-center"
-                }`}
+                } ${todos.length > 0 ? "max-md:justify-between max-md:flex-col max-md:items-start" : ""}`}
             >
-              Todolist{" "}
-              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
+              <span className="max-md:text-3xl">Todolist</span>
+              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent max-md:text-3xl">
                 PRO V1
               </span>
             </p>
@@ -211,7 +211,7 @@ const Todos = () => {
                     name="label"
                     value={todo.label}
                     onChange={handleChange}
-                    className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out"
+                    className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out max-md:p-3 max-md:rounded-lg"
                   />
                 </div>
                 <div className="input-field max-md:w-full">

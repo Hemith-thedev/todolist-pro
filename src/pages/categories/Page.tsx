@@ -212,23 +212,21 @@ const Categories = () => {
             categories.length > 0 ? "items-start" : "items-center"
           } gap-4 h-fit w-full p-10`}
         >
-          <div className="logo flex justify-center items-center h-fit w-full">
+          <div className={`logo flex justify-center items-center h-fit w-full ${(categories.length > 0) ? "max-md:justify-between" : "justify-center"} max-md:items-start`}>
             <p
-              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
-                categories.length > 0 ? "justify-between" : "justify-center"
-              } max-md:text-2xl`}
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${categories.length > 0 ? "justify-between" : "justify-center"
+                } ${categories.length > 0 ? "max-md:justify-between max-md:flex-col max-md:items-start" : ""}`}
             >
-              Todolist{" "}
-              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
+              <span className="max-md:text-3xl">Todolist</span>
+              <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent max-md:text-3xl">
                 PRO V1
               </span>
             </p>
             <button
               type="button"
-              className={`${
-                categories.length > 0 ? "ml-7" : "ml-0 hidden"
-              } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
-              onClick={() => (window.location.pathname = "/")}
+              className={`${categories.length > 0 ? "ml-7" : "ml-0 hidden"
+                } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
+              onClick={() => window.location.pathname = "/"}
             >
               Todos
             </button>
@@ -261,7 +259,7 @@ const Categories = () => {
               </div>
               <button
                 type="submit"
-                className="button flex justify-center items-center gap-3 bg-gray-100 text-gray-900 p-6 rounded-2xl shadow-xl shadow-amber-600/10 text-nowrap hover:shadow-2xl hover:shadow-amber-600/100 hover:bg-gray-900 hover:text-white max-md:w-full max-md:p-3 max-md:rounded-lg"
+                className="button flex justify-center items-center gap-3 bg-gray-100 text-gray-900 p-6 rounded-2xl shadow-xl shadow-amber-600/10 text-nowrap hover:shadow-2xl hover:shadow-amber-600/100 hover:bg-gray-900 hover:text-white max-md:w-full"
               >
                 Add Category
               </button>

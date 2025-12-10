@@ -12,7 +12,11 @@
   width: 1rem;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(227, 119, 6);
+  background: linear-gradient(
+    to bottom,
+    rgb(227, 119, 6),
+    rgb(146, 64, 14)
+  );
   border-radius: 10px;
   border: 0.3rem solid rgb(243, 244, 246);
 }
