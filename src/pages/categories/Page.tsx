@@ -74,17 +74,25 @@ const Categories = () => {
     );
   };
 
+  // const [colors] = useState<{ id: number; label: string; color: string }[]>([
+  //   { id: 1, label: "Red", color: "hsl(0, 100%, 60%)" },
+  //   { id: 2, label: "Orange", color: "hsl(30, 100%, 60%)" },
+  //   { id: 3, label: "Yellow", color: "hsl(60, 100%, 70%)" },
+  //   { id: 4, label: "Lime", color: "hsl(90, 100%, 70%)" },
+  //   { id: 5, label: "Green", color: "hsl(140, 100%, 50%)" },
+  //   { id: 6, label: "Cyan", color: "hsl(180, 100%, 70%)" },
+  //   { id: 7, label: "Blue", color: "hsl(220, 100%, 60%)" },
+  //   { id: 8, label: "Violet", color: "hsl(270, 100%, 70%)" },
+  //   { id: 9, label: "Magenta", color: "hsl(300, 100%, 70%)" },
+  //   { id: 10, label: "Pink", color: "hsl(320, 100%, 70%)" },
+  // ]);
+
   const [colors] = useState<{ id: number; label: string; color: string }[]>([
-    { id: 1, label: "Red", color: "hsl(0, 100%, 80%)" },
-    { id: 2, label: "Orange", color: "hsl(30, 100%, 80%)" },
-    { id: 3, label: "Yellow", color: "hsl(60, 100%, 80%)" },
-    { id: 4, label: "Lime", color: "hsl(90, 100%, 80%)" },
-    { id: 5, label: "Green", color: "hsl(120, 100%, 80%)" },
-    { id: 6, label: "Cyan", color: "hsl(180, 100%, 80%)" },
-    { id: 7, label: "Blue", color: "hsl(220, 100%, 80%)" },
-    { id: 8, label: "Violet", color: "hsl(270, 100%, 80%)" },
-    { id: 9, label: "Magenta", color: "hsl(300, 100%, 80%)" },
-    { id: 10, label: "Pink", color: "hsl(320, 100%, 80%)" },
+    { id: 1, label: "Red", color: "hsl(0, 100%, 60%)" },
+    { id: 2, label: "Orange", color: "hsl(30, 100%, 60%)" },
+    { id: 3, label: "Green", color: "hsl(140, 100%, 50%)" },
+    { id: 4, label: "Blue", color: "hsl(220, 100%, 60%)" },
+    { id: 5, label: "Pink", color: "hsl(320, 100%, 70%)" },
   ]);
 
   const [error, setError] = useState<string>("");
@@ -348,14 +356,9 @@ const Categories = () => {
                       className="flex gap-4 items-center w-full max-md:flex-col max-md:gap-2 max-md:items-start"
                     >
                       <div className="flex items-center gap-4 max-md:flex-col max-md:gap-2 w-full max-md:items-start">
-                        <input
-                          type="text"
-                          value={editingCategoryLabel}
-                          onChange={(e) =>
-                            setEditingCategoryLabel(e.target.value)
-                          }
-                          className={`bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out`}
-                        />
+                        <div className="label mx-4 max-md:mx-2">
+                          <p>{cat.label}</p>
+                        </div>
                         <Dropdown
                           placeholder="Color"
                           options={colors}
