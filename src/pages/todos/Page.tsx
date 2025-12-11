@@ -220,6 +220,7 @@ const Todos = () => {
                     options={categories}
                     onSelect={setSelectedCategory}
                     initialSelectedOption={userSelectedCategory}
+                    // isColorSelector={true}
                   />
                 </div>
               </div>

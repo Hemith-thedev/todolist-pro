@@ -9,14 +9,24 @@ import { useNavigate } from "react-router-dom";
 interface DropdownProps extends DropdownOptions {
   // FIX 1: Type change from previous conversation allows null for reset
   initialSelectedOption?: DropdownOptionOptions | null;
+  isColorSelector?: boolean;
 }
 
-const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: DropdownProps) => {
+const Dropdown = ({
+  placeholder,
+  options,
+  onSelect,
+  initialSelectedOption,
+  isColorSelector,
+}: DropdownProps) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   // State to track direction, initialized to open down/right
-  const [menuDirection, setMenuDirection] = useState<{ x: 'right' | 'left', y: 'down' | 'up' }>({ x: 'right', y: 'down' });
+  const [menuDirection, setMenuDirection] = useState<{
+    x: "right" | "left";
+    y: "down" | "up";
+  }>({ x: "right", y: "down" });
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,7 +41,6 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
     setSelected(initialSelectedOption ?? { id: 0, label: "", color: "" });
   }, [initialSelectedOption]);
 
-
   const handleSelect = (option: DropdownOptionOptions) => {
     setSelected(option);
     onSelect(option);
@@ -41,14 +50,16 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
   // Handle click outside to close the dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
 
   // 💡 Dynamic positioning logic
   useEffect(() => {
@@ -59,12 +70,12 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      let newX: 'right' | 'left' = 'right';
-      let newY: 'down' | 'up' = 'down';
+      let newX: "right" | "left" = "right";
+      let newY: "down" | "up" = "down";
 
       // --- Horizontal Check (Right Edge Collision) ---
       if (dropdownRect.left + menuWidth > viewportWidth) {
-        newX = 'left';
+        newX = "left";
       }
 
       // --- Vertical Check (Bottom Edge Collision) ---
@@ -73,11 +84,11 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
       if (spaceBelow < menuHeight) {
         const spaceAbove = dropdownRect.top;
         if (spaceAbove >= menuHeight) {
-          newY = 'up';
+          newY = "up";
         }
       }
 
-      setMenuDirection(prev => {
+      setMenuDirection((prev) => {
         if (prev.x !== newX || prev.y !== newY) {
           return { x: newX, y: newY };
         }
@@ -91,9 +102,23 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
 
   // Use selected.color if a category is selected (id !== 0)
   const isSelected = selected.id !== 0;
-  const buttonColor = isSelected ? selected.color : 'bg-gray-100';
-  const buttonTextColor = isSelected ? 'text-white' : 'text-gray-900';
-  const buttonShadow = isSelected ? `shadow-2xl shadow-[${selected.color}]/50` : 'shadow-xl shadow-amber-600/10';
+
+  // 🔑 THE FIX: Use React.CSSProperties & { [key: string]: any } to allow custom CSS variables
+  const buttonDynamicStyle: React.CSSProperties & { [key: string]: any } = {
+    // 1. Dynamic Background Color: Used when selected and not open
+    backgroundColor: isSelected && !isOpen ? selected.color : undefined,
+
+    // 2. Dynamic Text Color: Ensure contrast
+    color: isSelected && !isOpen ? "rgb(7, 24, 39)" : undefined,
+
+    // 3. Dynamic Shadow Color (The Fix)
+    '--selected-shadow-color': isSelected ? selected.color : 'transparent',
+    
+    // 4. Use the CSS variable in the standard box-shadow property
+    boxShadow: isSelected && !isOpen 
+        ? `0 25px 50px -12px var(--selected-shadow-color)` // large shadow
+        : undefined,
+  };
 
   return (
     <div
@@ -104,23 +129,27 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
         type="button"
         className={`dropdown-button button flex justify-center items-center gap-3 p-6 rounded-2xl text-nowrap cursor-pointer transition duration-150 
           ${
-          // Dynamic styling based on selected state and open state
-          isOpen
-            ? 'shadow-2xl shadow-amber-600/100 bg-gray-900 text-white'
-            : `${buttonShadow} ${buttonColor} ${buttonTextColor} hover:bg-gray-900 hover:text-white`
+            isOpen
+              ? `bg-gray-900 text-white shadow-2xl shadow-amber-600/100`
+              : `bg-gray-100 text-gray-900 shadow-xl shadow-amber-600/10`
           }
+          ${isSelected ? `bg-gray-900 shadow-2xl shadow-amber-600/50` : ``}
         z-1 max-md:w-full max-md:justify-between max-md:p-3 max-md:rounded-lg`}
         // Use inline style for button color if it's a category color (since Tailwind can't read variables for bg-color)
-        style={{
-          backgroundColor: isSelected && !isOpen ? selected.color : undefined,
-          // If the button is not open AND a color is selected, set text to white for contrast
-          color: isSelected && !isOpen ? 'rgb(7, 24, 39)' : undefined
-        }}
+        style={(isColorSelector) ? buttonDynamicStyle : {}}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <p>{selected.label !== "" ? selected.label : placeholder}</p>
+        <p className={`
+          ${isSelected ? `${isColorSelector ? `text-gray-900` : `text-white`}` : ``}
+          ${isOpen ? `${isColorSelector ? `text-white` : `text-white`}` : ``}
+          `}>
+          {selected.label !== "" ? selected.label : placeholder}
+        </p>
         <div
-          className="icon transition-transform duration-200"
+          className={`icon
+            ${isSelected ? `${isColorSelector ? `text-gray-900` : `text-white`}` : ``}
+            ${isOpen ? `${isColorSelector ? `text-white` : `text-white`}` : ``}
+            transition-transform duration-200`}
           style={{
             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
           }}
@@ -133,22 +162,25 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
           ref={menuRef}
           className={`
                 dropdown-menu absolute rounded-2xl bg-gray-100 shadow-2xl shadow-gray-300 overflow-hidden z-2 w-full min-w-max 
-                ${menuDirection.y === 'down' ? 'top-full mt-2' : 'bottom-full mb-2'} 
-                ${menuDirection.x === 'right' ? 'left-0' : 'right-0'} 
+                ${
+            menuDirection.y === "down" ? "top-full mt-2" : "bottom-full mb-2"
+          } 
+                ${menuDirection.x === "right" ? "left-0" : "right-0"} 
             `}
         >
           <ul
-          data-lenis-prevent
+            data-lenis-prevent
             className={`dropdown-list flex flex-col justify-start items-center max-h-48 h-fit w-full p-2 bg-gray-100 overflow-y-auto`}
           >
             {/* Placeholder/Reset Option */}
             <li
               onClick={() => handleSelect({ id: 0, label: "", color: "" })}
               className={`flex justify-center items-center h-fit w-full rounded-md px-5 py-2 transition duration-150 
-                  ${selected.id === 0
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                } cursor-pointer`}
+                  ${
+                    selected.id === 0
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                  } cursor-pointer`}
             >
               <p className="text-gray-500">{placeholder}</p>
             </li>
@@ -158,17 +190,20 @@ const Dropdown = ({ placeholder, options, onSelect, initialSelectedOption }: Dro
               <li
                 key={option.id}
                 className={`flex items-center h-fit w-full rounded-md px-5 py-2 transition duration-150 relative 
-                  ${selected.id === option.id
-                    ? "bg-gray-900 text-white"
-                    : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                  ${
+                    selected.id === option.id
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
                   } cursor-pointer`}
                 onClick={() => handleSelect(option)}
               >
                 {/* 🎨 Category Color Indicator */}
-                <span
-                  className="w-3 h-3 rounded-full mr-3"
-                  style={{ backgroundColor: option.color }}
-                />
+                {option.color !== "" && (
+                  <span
+                    className="w-3 h-3 rounded-full mr-3"
+                    style={{ backgroundColor: option.color }}
+                  />
+                )}
                 <p>{option.label}</p>
               </li>
             ))}

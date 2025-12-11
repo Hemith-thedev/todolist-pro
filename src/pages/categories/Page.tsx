@@ -1,14 +1,22 @@
 import { useState, useEffect } from "react";
-import { Category, Todo } from "../../data/Types"; // 💡 Import Todo type
+import { Category, Todo } from "../../data/Types";
+import { PredefinedCategories } from "../../data/Content";
 import Wrapper from "../../components/Wrapper";
 import Dropdown from "../../components/Dropdown";
 import UseSmoothScroll from "../../hooks/UseSmoothScroll";
+
+// Define the initial state for a new category
+const initialCategoryState: Category = {
+  id: 0,
+  label: "",
+  color: "",
+};
 
 const Categories = () => {
   UseSmoothScroll();
 
   const LOCALSTORAGE_CATEGORIES_KEY = "todolistpro-user-categories";
-  const LOCALSTORAGE_TODOS_KEY = "todolistpro-user-todos"; // 💡 Key for todos
+  const LOCALSTORAGE_TODOS_KEY = "todolistpro-user-todos";
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const SavedCategories = localStorage.getItem(LOCALSTORAGE_CATEGORIES_KEY);
@@ -41,11 +49,30 @@ const Categories = () => {
     return newId as number;
   };
 
-  const [category, setCategory] = useState<Category>({
-    id: GenerateUniqueId(categories),
-    label: "",
-    color: "",
-  });
+  // 🔑 State initialized and used for reset
+  const [category, setCategory] = useState<Category>(initialCategoryState);
+
+  // Utility function to find the color option object from the color string
+  const getColorOptionByValue = (colorString: string) => {
+    return (
+      colors.find((c) => c.color === colorString) || {
+        id: 0,
+        label: "Select Color",
+        color: "",
+      }
+    );
+  };
+
+  // Utility function to find the label option object from the label string
+  const getLabelOptionByValue = (labelString: string) => {
+    return (
+      PredefinedCategories.find((c) => c.label === labelString) || {
+        id: 0,
+        label: "Select Category",
+        color: "",
+      }
+    );
+  };
 
   const [colors] = useState<{ id: number; label: string; color: string }[]>([
     { id: 1, label: "Red", color: "hsl(0, 100%, 80%)" },
@@ -65,20 +92,16 @@ const Categories = () => {
   const [editingCategoryLabel, setEditingCategoryLabel] = useState<string>("");
   const [editingCategoryColor, setEditingCategoryColor] = useState<string>("");
 
-  // 💡 FIX: Update todos when category is saved
   const updateTodosInLocalStorage = (updatedCategory: Category) => {
     const todosString = localStorage.getItem(LOCALSTORAGE_TODOS_KEY);
     if (!todosString) return;
 
     const todos: Todo[] = JSON.parse(todosString);
-
     const updatedTodos = todos.map((todo) => {
-      // Check if the todo belongs to the category we just updated
       if (todo.category.id === updatedCategory.id) {
         return {
           ...todo,
           category: {
-            // Update the category object inside the todo
             ...todo.category,
             label: updatedCategory.label,
             color: updatedCategory.color,
@@ -88,12 +111,19 @@ const Categories = () => {
       }
       return todo;
     });
-
     localStorage.setItem(LOCALSTORAGE_TODOS_KEY, JSON.stringify(updatedTodos));
   };
 
   const handleEditSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (
+      editingCategoryLabel.trim() === "" ||
+      editingCategoryColor.trim() === ""
+    ) {
+      setError("Category label and color cannot be empty.");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
 
     let categoryToUpdate: Category | undefined;
 
@@ -104,7 +134,7 @@ const Categories = () => {
           label: editingCategoryLabel,
           color: editingCategoryColor,
         };
-        categoryToUpdate = updatedCat; // Capture the updated category
+        categoryToUpdate = updatedCat;
         return updatedCat;
       }
       return cat;
@@ -112,7 +142,6 @@ const Categories = () => {
 
     setCategories(UpdatedCategories);
 
-    // 💡 Execute the fix: Update todos in storage immediately after saving category
     if (categoryToUpdate) {
       updateTodosInLocalStorage(categoryToUpdate);
     }
@@ -125,42 +154,47 @@ const Categories = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (category.label !== "") {
-      const newCategory = {
-        ...category,
-        color: category.color || colors[0].color,
-      };
-
-      setCategories([...categories, newCategory]);
-      setError("");
-
-      setCategory({
-        id: GenerateUniqueId([...categories, newCategory]),
-        label: "",
-        color: "",
-      });
-    } else {
-      setError("Please enter a Category");
+    // 1. VALIDATION: Check if both category type (label) and color are selected
+    if (category.label === "" || category.color === "" || category.id === 0) {
+      setError("Please select both a Category type and a Color.");
       setTimeout(() => {
         setError("");
       }, 3000);
+      return;
     }
+
+    // Check if category already exists
+    if (categories.some((cat) => cat.label === category.label)) {
+      setError(`Category '${category.label}' is already activated.`);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    // 2. CREATE NEW CATEGORY
+    const newCategory = {
+      ...category,
+      id: GenerateUniqueId(categories), // Ensure new ID is generated here
+      color: category.color,
+    };
+
+    setCategories([...categories, newCategory]);
+    setError("");
+
+    // 3. 🔑 RESET FORM: Set the category state back to the initial state
+    setCategory(initialCategoryState);
   };
 
   const handleDeleteClick = (id: number) => {
     setConfirmingDeleteId(id);
   };
 
-  // 💡 FIX: Also handle deletion propagation (though not asked, it's necessary for completeness)
   const handleDeleteConfirm = (id: number) => {
     setCategories(categories.filter((cat) => cat.id !== id));
     setConfirmingDeleteId(null);
 
-    // Remove the category reference from all associated todos
     const todosString = localStorage.getItem(LOCALSTORAGE_TODOS_KEY);
     if (todosString) {
       const todos: Todo[] = JSON.parse(todosString);
-      // Option: Filter out todos of the deleted category, or set category to default/null
       const remainingTodos = todos.filter((todo) => todo.category.id !== id);
       localStorage.setItem(
         LOCALSTORAGE_TODOS_KEY,
@@ -186,7 +220,7 @@ const Categories = () => {
     setConfirmingDeleteId(null);
   };
 
-  const getInitialColorOption = (colorString: string) => {
+  const getInitialColorOptionEdit = (colorString: string) => {
     return (
       colors.find((c) => c.color === colorString) || {
         id: 0,
@@ -212,10 +246,17 @@ const Categories = () => {
             categories.length > 0 ? "items-start" : "items-center"
           } gap-4 h-fit w-full p-10`}
         >
-          <div className={`logo flex justify-center items-center h-fit w-full ${(categories.length > 0) ? "max-md:justify-between" : "justify-center"} max-md:items-start`}>
+          <div
+            className={`logo flex justify-center items-center h-fit w-full max-md:justify-between max-md:items-start`}
+          >
             <p
-              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${categories.length > 0 ? "justify-between" : "justify-center"
-                } ${categories.length > 0 ? "max-md:justify-between max-md:flex-col max-md:items-start" : ""}`}
+              className={`flex justify-center items-center gap-2 h-fit w-full text-4xl font-bold ${
+                categories.length > 0 ? "justify-between" : "justify-center"
+              } ${
+                categories.length > 0
+                  ? "max-md:justify-between max-md:flex-col max-md:items-start"
+                  : ""
+              }`}
             >
               <span className="max-md:text-3xl">Todolist</span>
               <span className="bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent max-md:text-3xl">
@@ -224,38 +265,52 @@ const Categories = () => {
             </p>
             <button
               type="button"
-              className={`${categories.length > 0 ? "ml-7" : "ml-0 hidden"
-                } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
-              onClick={() => window.location.pathname = "/"}
+              className={`${
+                categories.length > 0 ? "ml-7" : "ml-0 hidden"
+              } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
+              onClick={() => (window.location.pathname = "/")}
             >
               Todos
             </button>
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
-            <div className="flex justify-between items-center gap-7 w-full max-md:flex-col max-md:gap-4">
-              <div className="flex justify-between items-center gap-7 h-fit w-full max-md:flex-col max-md:gap-4">
-                <div className="input-field flex w-full">
-                  <input
-                    type="text"
-                    placeholder="Category"
-                    name="label"
-                    value={category.label}
-                    onChange={(e) =>
+            <div className="flex justify-center items-center gap-7 w-full max-md:flex-col max-md:gap-4">
+              <div className="flex justify-center items-center gap-7 h-fit w-fit max-md:flex-col max-md:gap-4">
+                <div className="flex h-fit w-fit z-20">
+                  <Dropdown
+                    placeholder="Activate Category"
+                    options={PredefinedCategories}
+                    onSelect={(option) =>
                       setCategory({
                         ...category,
-                        label: e.target.value,
+                        id: option.id,
+                        label: option.label,
                       })
                     }
-                    className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out max-md:p-3 max-md:rounded-lg"
+                    // 🔑 Pass current category label for controlled state/reset
+                    initialSelectedOption={getLabelOptionByValue(
+                      category.label
+                    )}
+                    // isColorSelector={false}
                   />
                 </div>
-                <Dropdown
-                  placeholder="Colors"
-                  options={colors}
-                  onSelect={(option) =>
-                    setCategory({ ...category, color: option.color })
-                  }
-                />
+                <div className="flex h-fit w-fit z-10">
+                  <Dropdown
+                    placeholder="Colors"
+                    options={colors}
+                    onSelect={(option) =>
+                      setCategory({
+                        ...category,
+                        color: option.color,
+                      })
+                    }
+                    // 🔑 Pass current category color for controlled state/reset
+                    initialSelectedOption={getColorOptionByValue(
+                      category.color
+                    )}
+                    // isColorSelector={true}
+                  />
+                </div>
               </div>
               <button
                 type="submit"
@@ -284,35 +339,36 @@ const Categories = () => {
               className="category flex justify-between items-center gap-7 h-fit w-full rounded-xl shadow-md"
               key={cat.id}
             >
-              <Wrapper className="flex justify-between items-center h-fit w-full p-3">
-                <div className="info flex justify-between items-center h-fit w-full">
+              <Wrapper className="flex justify-between items-center h-fit w-full p-3 max-md:flex-col max-md:items-start max-md:gap-3">
+                <div className="info flex justify-between items-center h-fit w-full max-md:flex-col max-md:items-start max-md:gap-3">
                   {/* Category Display or Edit Form */}
                   {editingIndex === cat.id ? (
                     <form
                       onSubmit={handleEditSave}
-                      className="flex gap-4 items-center w-full max-md:flex-col max-md:gap-2"
+                      className="flex gap-4 items-center w-full max-md:flex-col max-md:gap-2 max-md:items-start"
                     >
-                      <div className="flex items-center max-md:flex-col max-md:gap-2 max-md:w-full">
+                      <div className="flex items-center gap-4 max-md:flex-col max-md:gap-2 w-full max-md:items-start">
                         <input
                           type="text"
                           value={editingCategoryLabel}
                           onChange={(e) =>
                             setEditingCategoryLabel(e.target.value)
                           }
-                          className={`bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out max-md:p-3`}
+                          className={`bg-transparent w-full rounded-sm p-3 outline-none border-b-amber-600 border-b-2 caret-amber-600 tracking-widest transition duration-100 ease-in-out`}
                         />
                         <Dropdown
                           placeholder="Color"
                           options={colors}
-                          initialSelectedOption={getInitialColorOption(
+                          initialSelectedOption={getInitialColorOptionEdit(
                             editingCategoryColor
                           )}
                           onSelect={(option) =>
                             setEditingCategoryColor(option.color)
                           }
+                          // isColorSelector={true}
                         />
                       </div>
-                      <div className="">
+                      <div className="flex items-center max-md:w-full max-md:justify-end">
                         <button
                           type="submit"
                           className="text-nowrap text-green-600 p-2 rounded-md hover:text-green-800 hover:bg-green-200 hover:shadow-xl hover:shadow-green-600/50"
@@ -329,7 +385,7 @@ const Categories = () => {
                       </div>
                     </form>
                   ) : (
-                    // ... (Display mode remains the same) ...
+                    // Display mode
                     <div className="flex justify-between items-center w-full max-md:flex-col max-md:items-start max-md:gap-2">
                       <div className="preview-label flex items-center gap-2">
                         <div className="color flex justify-end items-center gap-3">
