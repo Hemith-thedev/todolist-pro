@@ -199,14 +199,14 @@ const Todos = () => {
                 PRO V1
               </span>
             </p>
-            <button
+            {/* <button
               type="button"
               className={`${todos.length > 0 ? "ml-7" : "ml-0 hidden"
                 } text-amber-600 p-2 rounded-md hover:text-amber-800 hover:bg-amber-200 hover:shadow-xl hover:shadow-amber-600/50`}
               onClick={() => window.location.pathname = "/categories"}
             >
               Categories
-            </button>
+            </button> */}
           </div>
           <Wrapper className="wrapper flex flex-col justify-center items-center gap-4 h-full w-full">
             <div className="flex justify-between items-center gap-7 w-full max-md:flex-col max-md:gap-4">

@@ -209,14 +209,14 @@ const Dropdown = ({
             ))}
 
             {/* Add Category Link */}
-            {window.location.pathname !== "/categories" && (
+            {/* {window.location.pathname !== "/categories" && (
               <li
                 onClick={() => navigate("/categories")}
                 className="flex justify-center items-center h-fit w-full rounded-md px-5 py-2 text-nowrap bg-gray-100 text-gray-900 hover:bg-gray-900 hover:text-white cursor-pointer transition duration-150 border-t mt-2 border-gray-300 pt-2"
               >
                 <p>Add Category</p>
               </li>
-            )}
+            )} */}
           </ul>
         </div>
       )}
