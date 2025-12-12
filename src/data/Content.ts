@@ -56,6 +56,10 @@ export const PredefinedCategories = [
   }
 ]
 
+localStorage.setItem("todolistpro-user-categories", JSON.stringify(PredefinedCategories))
+
+
+
 // const [colors] = useState<{ id: number; label: string; color: string }[]>([
 //   { id: 1, label: "Red", color: "hsl(0, 100%, 60%)" },
 //   { id: 2, label: "Orange", color: "hsl(30, 100%, 60%)" },
