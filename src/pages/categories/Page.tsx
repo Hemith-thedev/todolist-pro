@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Category, Todo } from "../../data/Types";
-import { PredefinedCategories } from "../../data/Content";
+import { colors } from "../../data/Content";
 import Wrapper from "../../components/Wrapper";
 import Dropdown from "../../components/Dropdown";
 import UseSmoothScroll from "../../hooks/UseSmoothScroll";
@@ -66,34 +66,13 @@ const Categories = () => {
   // Utility function to find the label option object from the label string
   const getLabelOptionByValue = (labelString: string) => {
     return (
-      PredefinedCategories.find((c) => c.label === labelString) || {
+      categories.find((c) => c.label === labelString) || {
         id: 0,
         label: "Select Category",
         color: "",
       }
     );
   };
-
-  // const [colors] = useState<{ id: number; label: string; color: string }[]>([
-  //   { id: 1, label: "Red", color: "hsl(0, 100%, 60%)" },
-  //   { id: 2, label: "Orange", color: "hsl(30, 100%, 60%)" },
-  //   { id: 3, label: "Yellow", color: "hsl(60, 100%, 70%)" },
-  //   { id: 4, label: "Lime", color: "hsl(90, 100%, 70%)" },
-  //   { id: 5, label: "Green", color: "hsl(140, 100%, 50%)" },
-  //   { id: 6, label: "Cyan", color: "hsl(180, 100%, 70%)" },
-  //   { id: 7, label: "Blue", color: "hsl(220, 100%, 60%)" },
-  //   { id: 8, label: "Violet", color: "hsl(270, 100%, 70%)" },
-  //   { id: 9, label: "Magenta", color: "hsl(300, 100%, 70%)" },
-  //   { id: 10, label: "Pink", color: "hsl(320, 100%, 70%)" },
-  // ]);
-
-  const [colors] = useState<{ id: number; label: string; color: string }[]>([
-    { id: 1, label: "Red", color: "hsl(0, 100%, 60%)" },
-    { id: 2, label: "Orange", color: "hsl(30, 100%, 60%)" },
-    { id: 3, label: "Green", color: "hsl(140, 100%, 50%)" },
-    { id: 4, label: "Blue", color: "hsl(220, 100%, 60%)" },
-    { id: 5, label: "Pink", color: "hsl(320, 100%, 70%)" },
-  ]);
 
   const [error, setError] = useState<string>("");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -287,7 +266,7 @@ const Categories = () => {
                 <div className="flex h-fit w-fit z-20">
                   <Dropdown
                     placeholder="Activate Category"
-                    options={PredefinedCategories}
+                    options={categories}
                     onSelect={(option) =>
                       setCategory({
                         ...category,

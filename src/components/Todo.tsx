@@ -11,10 +11,12 @@ interface TodoCardProps extends Todo {
     updatedCategory: Category
   ) => void;
   onToggleComplete: (id: number) => void;
-  onDeleteClick: (id: number) => void;
-  isConfirming: boolean;
-  onDeleteConfirm: (id: number) => void;
-  onDeleteCancel: () => void;
+  // 🔑 Renamed: This function now executes the delete immediately
+  onDelete: (id: number) => void;
+  // 🗑️ Removed confirmation props:
+  // isConfirming: boolean;
+  // onDeleteConfirm: (id: number) => void;
+  // onDeleteCancel: () => void;
 }
 
 const TodoCard = ({
@@ -25,10 +27,8 @@ const TodoCard = ({
   categories,
   onUpdate,
   onToggleComplete,
-  onDeleteClick,
-  isConfirming,
-  onDeleteConfirm,
-  onDeleteCancel,
+  // 🔑 Updated prop name
+  onDelete,
 }: TodoCardProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editingTodoLabel, setEditingTodoLabel] = useState<string>(label);
@@ -140,9 +140,8 @@ const TodoCard = ({
           ) : (
             <p
               style={{ "--color": category.color } as React.CSSProperties}
-              className={`${
-                completed ? "line-through text-gray-500" : ""
-              } selection:bg-[var(--color)] selection:text-gray-900 cursor-pointer`}
+              className={`${completed ? "line-through text-gray-500" : ""
+                } selection:bg-[var(--color)] selection:text-gray-900 cursor-pointer`}
               onClick={() => {
                 // if not in editing mode, toggle check / uncheck
                 onToggleComplete(id)
@@ -154,28 +153,8 @@ const TodoCard = ({
         </div>
       </div>
       <div className="options flex gap-3 items-center">
-        {isConfirming ? (
-          // CONFIRMATION UI
-          <div className="flex items-center gap-2 max-md:flex-col max-md:items-start">
-            <p className="text-amber-600 text-nowrap">Are you sure?</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="text-nowrap text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
-                onClick={() => onDeleteConfirm(id)}
-              >
-                Yes, Delete
-              </button>
-              <button
-                type="button"
-                className="text-gray-600 p-2 rounded-md hover:text-gray-800 hover:bg-gray-200 hover:shadow-xl hover:shadow-gray-600/50"
-                onClick={onDeleteCancel}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : isEditing ? (
+        {/* 🗑️ REMOVED CONFIRMATION UI BLOCK */}
+        {isEditing ? (
           // EDITING UI
           <>
             <button
@@ -194,7 +173,7 @@ const TodoCard = ({
             </button>
           </>
         ) : (
-          // DEFAULT UI
+          // DEFAULT UI (now shows Edit and Immediate Delete)
           <>
             <button
               type="button"
@@ -206,7 +185,8 @@ const TodoCard = ({
             <button
               type="button"
               className="delete text-red-600 p-2 rounded-md hover:text-red-800 hover:bg-red-200 hover:shadow-xl hover:shadow-red-600/50"
-              onClick={() => onDeleteClick(id)}
+              // 🔑 Immediate delete execution
+              onClick={() => onDelete(id)}
               disabled={isEditing}
             >
               Delete

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Todo, Category } from "../../data/Types";
+import { PredefinedCategories, colors } from "../../data/Content";
 import Wrapper from "../../components/Wrapper";
 import Dropdown from "../../components/Dropdown";
 import TodoCard from "../../components/Todo";
@@ -21,10 +22,10 @@ const Todos = () => {
     return SavedCategories ? JSON.parse(SavedCategories) : [];
   });
 
-  // NEW STATE for confirmation
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(
-    null
-  );
+  // 🗑️ Confirmation state removed
+  // const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(
+  //   null
+  // );
 
   useEffect(() => {
     localStorage.setItem(LOCALSTORAGE_TODOS_KEY, JSON.stringify(todos));
@@ -101,21 +102,16 @@ const Todos = () => {
     );
   };
 
-  // UPDATED HANDLER: Starts the confirmation flow (passed to TodoCard's delete button)
-  const handleDeleteClick = (id: number) => {
-    setConfirmingDeleteId(id);
-  };
-
-  // NEW HANDLER: Executes deletion if confirmed (passed to TodoCard's confirmation button)
-  const handleDeleteConfirm = (id: number) => {
+  // 🔑 Consolidated delete logic into one function for immediate deletion
+  const handleDeleteTodo = (id: number) => {
     setTodos((prevTodos) => prevTodos.filter((t) => t.id !== id));
-    setConfirmingDeleteId(null);
+    // 🗑️ setConfirmingDeleteId(null); // No longer needed
   };
 
-  // NEW HANDLER: Cancels confirmation (passed to TodoCard's cancel button)
-  const handleDeleteCancel = () => {
-    setConfirmingDeleteId(null);
-  };
+  // 🗑️ Removed confirmation handlers:
+  // const handleDeleteClick = (id: number) => { setConfirmingDeleteId(id); };
+  // const handleDeleteConfirm = (id: number) => { ... };
+  // const handleDeleteCancel = () => { setConfirmingDeleteId(null); };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -126,6 +122,17 @@ const Todos = () => {
     // Update both the selected category state and the todo draft
     setUserSelectedCategory(category);
     setTodo({ ...todo, category: category });
+  };
+
+  // Utility function to find the color option object from the color string
+  const getColorOptionByValue = (colorString: string) => {
+    return (
+      colors.find((c) => c.color === colorString) || {
+        id: 0,
+        label: "Select Color",
+        color: "",
+      }
+    );
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -214,13 +221,13 @@ const Todos = () => {
                     className="bg-transparent w-full p-6 border-none outline-none rounded-2xl shadow-md caret-amber-600 tracking-widest hover:shadow-xl focus:shadow-xl transition duration-100 ease-in-out max-md:p-3 max-md:rounded-lg"
                   />
                 </div>
-                <div className="input-field max-md:w-full">
+                <div className="input-field flex gap-7 max-md:w-full max-md:gap-4">
                   <Dropdown
                     placeholder="Category"
-                    options={categories}
+                    options={PredefinedCategories}
                     onSelect={setSelectedCategory}
                     initialSelectedOption={userSelectedCategory}
-                    // isColorSelector={true}
+                  // isColorSelector={true} // Assuming this prop is still managed in Dropdown.tsx
                   />
                 </div>
               </div>
@@ -265,11 +272,8 @@ const Todos = () => {
                           categories={categories}
                           onUpdate={handleUpdate}
                           onToggleComplete={handleToggleComplete}
-                          // PASSING CONFIRMATION LOGIC DOWN
-                          onDeleteClick={handleDeleteClick}
-                          isConfirming={confirmingDeleteId === todo.id}
-                          onDeleteConfirm={handleDeleteConfirm}
-                          onDeleteCancel={handleDeleteCancel}
+                          // 🔑 Immediate delete execution using the new onDelete prop
+                          onDelete={handleDeleteTodo}
                         />
                       ))
                   )}

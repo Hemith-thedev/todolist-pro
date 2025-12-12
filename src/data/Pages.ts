@@ -22,11 +22,11 @@ export const Pages: RouteConfig[] = [
     title: "Incomplete",
     component: IncompleteTodos
   },
-  {
-    path: "/categories",
-    title: "Categories",
-    component: Categories
-  }
+  // {
+  //   path: "/categories",
+  //   title: "Categories",
+  //   component: Categories
+  // }
 ];
 
 export const PageNotFoundRoute: RouteConfig = { path: "*", title: "Page Not Found", component: PageNotFound };
